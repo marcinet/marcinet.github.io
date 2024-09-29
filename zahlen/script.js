@@ -131,6 +131,7 @@ function playNumber() {
     console.log("Playing number", currentNumber);
     const utterance = new SpeechSynthesisUtterance(currentNumber.toString());
     utterance.lang = 'de-DE';
+    utterance.voice = speechSynthesis.getVoices().find(voice => voice.lang === utterance.lang);
     speechSynthesis.speak(utterance);
     console.log(currentNumber);
     numberInput.focus();
