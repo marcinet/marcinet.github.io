@@ -38,6 +38,7 @@ maxRangeSelect.addEventListener('change', updateRanges);
 window.speechSynthesis.onvoiceschanged = function() {
     voice = window.speechSynthesis.getVoices().find(voice => voice.lang === 'de-DE');
     console.log("Voice set to: ", voice);
+    alert("Voices loaded, voice set to: " + voice.name + " (" + voice.lang + ")");
 };
 
 function updateRanges() {
