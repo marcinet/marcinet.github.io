@@ -30,20 +30,30 @@ body {
 .input-container {
     margin-top: 20px;
     display: flex;
-    justify-content: flex-end;
+    justify-content: center;
     align-items: center;
 }
 
-input {
-    padding: 5px;
-    font-size: 16px;
+input#numberInput {
+    padding: 10px;
+    font-size: 24px;
     text-align: right;
+    width: 200px;
+    height: 40px;
     margin-right: 10px;
 }
 
 button#submitButton {
-    padding: 5px 10px;
-    font-size: 16px;
+    padding: 10px 20px;
+    font-size: 20px;
+    height: 60px;
+    background-color: #4CAF50;
+    border: none;
+    border-radius: 5px;
+    font-size: 24px;
+    color: white;
+    cursor: pointer;
+    
 }
 
 .fireworks {
