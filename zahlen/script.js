@@ -4,6 +4,7 @@ const rangeValues = [1, 10, 100, 1000, 10000, 100000, 1000000];
 let currentIndex = 0;
 let score = 0;
 let currentNumber = 0;
+let voice = null;
 
 const playButton = document.getElementById('playButton');
 const numberInput = document.getElementById('numberInput');
@@ -20,6 +21,7 @@ numberInput.addEventListener('keyup', function(event) {
         checkAnswer();
     }
 });
+
 // Space key to play number
 numberInput.addEventListener('keydown', function(event) {
     if (event.key === ' ' || event.key === 'p') {
@@ -30,6 +32,13 @@ numberInput.addEventListener('keydown', function(event) {
 
 minRangeSelect.addEventListener('change', updateRanges);
 maxRangeSelect.addEventListener('change', updateRanges);
+
+// Voices are loaded asynchronously, so we need to wait for them to load before we can play the number
+// Otherwise play the number with the default voice.
+window.speechSynthesis.onvoiceschanged = function() {
+    voice = window.speechSynthesis.getVoices().find(voice => voice.lang === 'de-DE');
+    console.log("Voice set to: ", voice);
+};
 
 function updateRanges() {
     let minVal = parseInt(minRangeSelect.value);
@@ -131,7 +140,8 @@ function playNumber() {
     console.log("Playing number", currentNumber);
     const utterance = new SpeechSynthesisUtterance(currentNumber.toString());
     utterance.lang = 'de-DE';
-    utterance.voice = speechSynthesis.getVoices().find(voice => voice.lang === utterance.lang);
+    utterance.voice = voice;
+    console.log("Voice", utterance.voice);
     speechSynthesis.speak(utterance);
     console.log(currentNumber);
     numberInput.focus();
