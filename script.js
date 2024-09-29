@@ -19,7 +19,11 @@ numberInput.addEventListener('keyup', function(event) {
     if (event.key === 'Enter') {
         checkAnswer();
     }
-    if (event.key === ' ') {
+});
+// Space key to play number
+numberInput.addEventListener('keydown', function(event) {
+    if (event.key === ' ' || event.key === 'p') {
+        event.preventDefault();
         playNumber();
     }
 });
