@@ -11,32 +11,82 @@
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <!-- Babel for JSX transformation -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         body { font-family: 'Inter', sans-serif; }
+        
+        /* Base Scale: 1 Whole = 200px */
+        .whole-frame { 
+            width: 200px; 
+            height: 200px; 
+            position: relative;
+            background-color: #f8fafc; /* slate-50 */
+            border: 3px solid #e2e8f0; /* slate-200 */
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            align-items: flex-end;
+        }
+
+        .block-unit { 
+            width: 200px; 
+            height: 200px; 
+            background-color: #6366f1; /* indigo-500 */
+            border: 2px solid #4338ca; /* indigo-700 */
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 900;
+            font-size: 3rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .block-tenth { 
+            width: 20px; 
+            height: 200px; 
+            background-color: #60a5fa; /* blue-400 */
+            border-right: 1px solid #2563eb; /* blue-600 */
+        }
+
+        .block-hundredth { 
+            width: 20px; 
+            height: 20px; 
+            background-color: #34d399; /* emerald-400 */
+            border-top: 1px solid #059669; /* emerald-600 */
+        }
+
+        .block-thousandth { 
+            width: 20px; 
+            height: 2px; 
+            background-color: #fbbf24; /* amber-400 */
+            border-top: 1px solid #d97706; /* amber-600 */
+        }
+
+        .block-pop {
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.95); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
     </style>
 </head>
 <body>
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useMemo, useEffect } = React;
+        const { useState, useMemo } = React;
         
-        // Mock Lucide components for the browser environment
-        const ArrowRight = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>;
-        const Search = ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>;
         const Box = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>;
         const Grid3X3 = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>;
         const Scale = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h18"/></svg>;
-        const RefreshCcw = ({size}) => <svg width={size} height={size} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>;
-        const Globe = ({size}) => <svg width={size} height={size} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>;
 
         const TabButton = ({ active, onClick, icon, label }) => (
             <button 
                 onClick={onClick}
-                className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all whitespace-nowrap ${active ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200 scale-105' : 'bg-white text-slate-500 border border-slate-200 hover:border-indigo-300 hover:text-indigo-500'}`}
+                className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all whitespace-nowrap ${active ? 'bg-indigo-600 text-white shadow-lg' : 'bg-white text-slate-500 border border-slate-200 hover:border-indigo-300'}`}
             >
                 {icon}
                 {label}
@@ -44,7 +94,7 @@
         );
 
         const App = () => {
-            const [value, setValue] = useState(1.250);
+            const [value, setValue] = useState(0.500);
             const [activeTab, setActiveTab] = useState('visualizer');
             const [region, setRegion] = useState('CH'); 
 
@@ -59,126 +109,170 @@
                 };
             }, [value]);
 
-            const formatNumber = (val) => {
-                const fixed = val.toFixed(3);
+            const display = useMemo(() => {
+                const fixed = value.toFixed(3);
                 const [whole, decimal] = fixed.split('.');
                 let formattedWhole = whole;
-                let separator = '.';
-
-                if (region === 'CH') {
-                    formattedWhole = whole.replace(/\B(?=(\d{3})+(?!\d))/g, "'");
-                    separator = '.';
-                } else if (region === 'EU') {
-                    formattedWhole = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-                    separator = ',';
-                } else {
-                    formattedWhole = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-                    separator = '.';
-                }
+                let separator = region === 'EU' ? ',' : '.';
+                if (region === 'CH') formattedWhole = whole.replace(/\B(?=(\d{3})+(?!\d))/g, "'");
+                else if (region === 'EU') formattedWhole = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                else formattedWhole = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
                 return { whole: formattedWhole, sep: separator, decimal };
-            };
-
-            const display = formatNumber(value);
+            }, [value, region]);
 
             return (
-                <div className="min-h-screen bg-slate-50 p-4 md:p-8 text-slate-800">
-                    <div className="max-w-4xl mx-auto">
+                <div className="min-h-screen bg-slate-100 p-4 md:p-8 text-slate-800">
+                    <div className="max-w-5xl mx-auto">
                         <header className="text-center mb-8">
-                            <h1 className="text-4xl font-bold text-indigo-600 mb-2">Dezimal-Explorer</h1>
-                            <p className="text-lg text-slate-600">Entdecke die Welt zwischen den Zahlen!</p>
+                            <h1 className="text-4xl font-extrabold text-indigo-600 mb-2 tracking-tight italic">Dezimal-Mathe</h1>
+                            <p className="text-lg text-slate-600">Sieh, wie viel Platz die Teile im "Ganzen" einnehmen!</p>
                         </header>
 
                         <div className="flex justify-center gap-2 mb-6">
-                            <button onClick={() => setRegion('CH')} className={`px-4 py-2 rounded-full text-xs font-bold transition-all ${region === 'CH' ? 'bg-red-500 text-white shadow-lg' : 'bg-white text-slate-500 border border-slate-200'}`}>🇨🇭 Schweiz (1.50)</button>
-                            <button onClick={() => setRegion('US')} className={`px-4 py-2 rounded-full text-xs font-bold transition-all ${region === 'US' ? 'bg-blue-600 text-white shadow-lg' : 'bg-white text-slate-500 border border-slate-200'}`}>🇺🇸 USA (1.50)</button>
-                            <button onClick={() => setRegion('EU')} className={`px-4 py-2 rounded-full text-xs font-bold transition-all ${region === 'EU' ? 'bg-emerald-600 text-white shadow-lg' : 'bg-white text-slate-500 border border-slate-200'}`}>🇪🇺 Europa (1,50)</button>
+                            {['CH', 'US', 'EU'].map(r => (
+                                <button key={r} onClick={() => setRegion(r)} className={`px-4 py-2 rounded-full text-xs font-bold transition-all ${region === r ? 'bg-indigo-600 text-white shadow-lg' : 'bg-white text-slate-500 border border-slate-200'}`}>
+                                    {r === 'CH' ? '🇨🇭 CH' : r === 'US' ? '🇺🇸 US' : '🇪🇺 EU'}
+                                </button>
+                            ))}
                         </div>
 
-                        <section className="bg-white rounded-3xl shadow-xl p-6 mb-8 border border-slate-200">
+                        <section className="bg-white rounded-3xl shadow-xl p-8 mb-8 border border-slate-200">
                             <div className="flex flex-col items-center gap-6">
-                                <div className="text-center">
-                                    <div className="text-7xl font-black tracking-tighter tabular-nums flex items-baseline justify-center">
-                                        <span>{display.whole}</span>
-                                        <span className="text-indigo-500 mx-1">{display.sep}</span>
-                                        <span className="text-indigo-400">{display.decimal}</span>
-                                    </div>
-                                    <div className="flex justify-center gap-8 mt-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                                        <div className="flex flex-col"><span>Ganze Zahlen</span></div>
-                                        <div className="flex flex-col text-indigo-400"><span>Dezimalstellen</span></div>
-                                    </div>
+                                <div className="text-8xl font-black tracking-tighter tabular-nums flex items-baseline justify-center">
+                                    <span>{display.whole}</span>
+                                    <span className="text-indigo-500 mx-1">{display.sep}</span>
+                                    <span className="text-indigo-400">{display.decimal}</span>
                                 </div>
                                 <div className="w-full px-4">
-                                    <input type="range" min="0" max="10" step="0.001" value={value} onChange={(e) => setValue(parseFloat(e.target.value))} className="w-full h-6 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600" />
-                                    <div className="flex justify-between mt-2 text-slate-500 font-black text-sm px-1">
-                                        {[0,1,2,3,4,5,6,7,8,9,10].map(n => <span key={n}>{n}</span>)}
+                                    <input type="range" min="0" max="2.999" step="0.001" value={value} onChange={(e) => setValue(parseFloat(e.target.value))} className="w-full h-10 bg-slate-200 rounded-2xl appearance-none cursor-pointer accent-indigo-600" />
+                                    <div className="flex justify-between mt-2 text-slate-400 font-black text-[10px] uppercase tracking-widest px-1">
+                                        <span>0.000</span>
+                                        <span>3.000</span>
                                     </div>
                                 </div>
                             </div>
                         </section>
 
                         <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
-                            <TabButton active={activeTab === 'visualizer'} onClick={() => setActiveTab('visualizer')} icon={<Box />} label="Blöcke-Ansicht" />
-                            <TabButton active={activeTab === 'fraction'} onClick={() => setActiveTab('fraction')} icon={<Scale />} label="Brüche-Link" />
-                            <TabButton active={activeTab === 'placeValue'} onClick={() => setActiveTab('placeValue')} icon={<Grid3X3 />} label="Stellenwert-Tabelle" />
+                            <TabButton active={activeTab === 'visualizer'} onClick={() => setActiveTab('visualizer')} icon={<Box />} label="Flächen-Ansicht" />
+                            <TabButton active={activeTab === 'placeValue'} onClick={() => setActiveTab('placeValue')} icon={<Grid3X3 />} label="Tabelle" />
+                            <TabButton active={activeTab === 'fraction'} onClick={() => setActiveTab('fraction')} icon={<Scale />} label="Bruch" />
                         </div>
 
-                        <main className="bg-white rounded-3xl shadow-lg p-8 border border-slate-200 min-h-[420px]">
+                        <main className="bg-white rounded-[2.5rem] shadow-2xl p-10 border border-slate-200">
                             {activeTab === 'visualizer' && (
-                                <div className="space-y-8">
-                                    <h2 className="text-2xl font-bold flex items-center gap-2 text-slate-700"><Search className="text-indigo-500" /> Wie sieht {value.toFixed(3)} aus?</h2>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                        <div className="bg-slate-50 p-6 rounded-2xl border-2 border-dashed border-slate-200">
-                                            <p className="text-xs font-bold text-slate-400 uppercase mb-2">Ganze ({parts.whole})</p>
-                                            <div className="flex flex-wrap gap-2 mb-6">
-                                                {[...Array(parts.whole)].map((_, i) => <div key={i} className="w-10 h-10 bg-indigo-500 rounded shadow-sm text-white flex items-center justify-center font-bold">1</div>)}
-                                            </div>
-                                            <p className="text-xs font-bold text-blue-400 uppercase mb-2">Zehntel ({parts.tenths})</p>
-                                            <div className="flex flex-wrap gap-1">
-                                                {[...Array(parts.tenths)].map((_, i) => <div key={i} className="w-2 h-8 bg-blue-400 rounded-full" />)}
-                                            </div>
+                                <div className="space-y-10">
+                                    <div className="flex flex-col md:flex-row justify-between items-center gap-4 border-b border-slate-100 pb-6">
+                                        <h2 className="text-xl font-black text-slate-400 uppercase tracking-widest">Sammelbecken (Max 3 Ganze)</h2>
+                                        <div className="flex flex-wrap gap-2 text-[10px] font-black uppercase">
+                                            <span className="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-lg border border-indigo-100">Einer</span>
+                                            <span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg border border-blue-100">1/10</span>
+                                            <span className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-lg border border-emerald-100">1/100</span>
+                                            <span className="px-3 py-1 bg-amber-50 text-amber-600 rounded-lg border border-amber-100">1/1000</span>
                                         </div>
-                                        <div className="space-y-4 text-sm text-slate-600">
-                                            <div className="p-4 bg-indigo-50 rounded-xl border border-indigo-100"><h3 className="font-bold text-indigo-700">Ganze Zahlen</h3><p>Vollständige Dinge wie ganze Pizzen.</p></div>
-                                            <div className="p-4 bg-blue-50 rounded-xl border border-blue-100"><h3 className="font-bold text-blue-700">Dezimalteil</h3><p>Kleine Reste, kleiner als 1.</p></div>
-                                        </div>
+                                    </div>
+
+                                    {/* The Unified Containers */}
+                                    <div className="flex flex-wrap justify-center gap-12 py-10">
+                                        
+                                        {/* Dynamic rendering of 3 potential whole slots */}
+                                        {[0, 1, 2].map((slotIndex) => {
+                                            const isFullyFilled = parts.whole > slotIndex;
+                                            const isCurrentlyFilling = parts.whole === slotIndex;
+                                            
+                                            return (
+                                                <div key={slotIndex} className="flex flex-col items-center gap-4">
+                                                    <div className="whole-frame shadow-sm">
+                                                        {isFullyFilled ? (
+                                                            /* Full Indigo Block */
+                                                            <div className="block-unit block-pop w-full h-full">1</div>
+                                                        ) : isCurrentlyFilling ? (
+                                                            /* Fraction Filling Logic */
+                                                            <div className="flex w-full h-full items-end">
+                                                                {/* Tenths */}
+                                                                {Array.from({ length: parts.tenths }).map((_, i) => (
+                                                                    <div key={`t-${i}`} className="block-tenth" />
+                                                                ))}
+                                                                
+                                                                {/* Column for Hundredths & Thousandths */}
+                                                                {(parts.hundredths > 0 || parts.thousandths > 0) && parts.tenths < 10 && (
+                                                                    <div className="flex flex-col-reverse w-[20px] h-full items-start bg-slate-100">
+                                                                        {/* Hundredths */}
+                                                                        {Array.from({ length: parts.hundredths }).map((_, i) => (
+                                                                            <div key={`h-${i}`} className="block-hundredth" />
+                                                                        ))}
+                                                                        
+                                                                        {/* Sub-Column for Thousandths inside a Hundredth spot */}
+                                                                        {parts.thousandths > 0 && parts.hundredths < 10 && (
+                                                                            <div className="flex flex-col-reverse w-[20px] h-[20px] bg-emerald-50 items-start">
+                                                                                {Array.from({ length: parts.thousandths }).map((_, i) => (
+                                                                                    <div key={`th-${i}`} className="block-thousandth" />
+                                                                                ))}
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        ) : (
+                                                            /* Empty Placeholder */
+                                                            <div className="w-full h-full flex items-center justify-center opacity-10">
+                                                                <div className="w-12 h-12 border-4 border-slate-300 rounded-full" />
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <p className="text-xs font-black text-slate-300 uppercase tracking-widest">
+                                                        {slotIndex + 1}. Ganzes
+                                                    </p>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+
+                                    <div className="bg-blue-50 border-l-8 border-blue-400 p-6 rounded-2xl">
+                                        <p className="text-blue-900 font-bold mb-2">Die "Halbe"-Erkenntnis:</p>
+                                        <p className="text-blue-800 text-sm leading-relaxed">
+                                            Stelle den Regler auf <span className="font-black bg-white px-2 py-0.5 rounded">0,500</span>. 
+                                            Siehst du, wie die 5 blauen Stäbe genau die Hälfte des Quadrats ausfüllen? 
+                                            Das ist der Beweis: 0,5 ist exakt eine Hälfte!
+                                        </p>
                                     </div>
                                 </div>
                             )}
 
                             {activeTab === 'placeValue' && (
-                                <div className="space-y-8">
-                                    <div className="grid grid-cols-5 gap-0 text-center rounded-2xl border-4 border-slate-100 overflow-hidden">
-                                        <div className="bg-slate-100 p-3 text-[10px] font-black">EINER</div>
-                                        <div className="bg-indigo-100 p-3 text-[10px] font-black">TRENNER</div>
-                                        <div className="bg-blue-100 p-3 text-[10px] font-black">ZEHNTEL</div>
-                                        <div className="bg-emerald-100 p-3 text-[10px] font-black">HUND.</div>
-                                        <div className="bg-amber-100 p-3 text-[10px] font-black">TAUS.</div>
-                                        <div className="bg-white p-6 text-4xl font-black">{parts.whole}</div>
-                                        <div className="bg-indigo-50 p-6 text-4xl font-black text-indigo-500">{display.sep}</div>
-                                        <div className="bg-white p-6 text-4xl font-black text-blue-500">{parts.tenths}</div>
-                                        <div className="bg-white p-6 text-4xl font-black text-emerald-500">{parts.hundredths}</div>
-                                        <div className="bg-white p-6 text-4xl font-black text-amber-500">{parts.thousandths}</div>
-                                        <div className="bg-white p-3 text-[10px] font-bold text-slate-400">{parts.whole}/1</div>
-                                        <div className="bg-indigo-50 p-3 text-[10px] text-indigo-300 italic">Die Brücke</div>
-                                        <div className="bg-white p-3 text-[10px] font-bold text-blue-400">{parts.tenths}/10</div>
-                                        <div className="bg-white p-3 text-[10px] font-bold text-emerald-400">{parts.hundredths}/100</div>
-                                        <div className="bg-white p-3 text-[10px] font-bold text-amber-400">{parts.thousandths}/1000</div>
+                                <div className="space-y-6 py-10">
+                                    <div className="grid grid-cols-5 gap-0 text-center rounded-[2.5rem] border-8 border-slate-100 overflow-hidden shadow-2xl">
+                                        {['EINER', 'TRENNER', 'ZEHNTEL', 'HUND.', 'TAUS.'].map((label, i) => (
+                                            <div key={label} className={`p-6 text-xs font-black tracking-widest ${i === 1 ? 'bg-indigo-100 text-indigo-600' : 'bg-slate-100 text-slate-500'}`}>{label}</div>
+                                        ))}
+                                        <div className="bg-white p-12 text-7xl font-black">{parts.whole}</div>
+                                        <div className="bg-indigo-50 p-12 text-7xl font-black text-indigo-500">{display.sep}</div>
+                                        <div className="bg-white p-12 text-7xl font-black text-blue-500">{parts.tenths}</div>
+                                        <div className="bg-white p-12 text-7xl font-black text-emerald-500">{parts.hundredths}</div>
+                                        <div className="bg-white p-12 text-7xl font-black text-amber-500">{parts.thousandths}</div>
                                     </div>
                                 </div>
                             )}
+
                             {activeTab === 'fraction' && (
-                                <div className="text-center py-10">
-                                    <h2 className="text-2xl font-bold mb-10">Gleicher Wert, andere Form</h2>
-                                    <div className="flex flex-col md:flex-row items-center justify-center gap-10 bg-slate-50 p-10 rounded-3xl">
-                                        <div><p className="text-xs font-bold text-slate-400 mb-2">DEZIMAL</p><div className="text-6xl font-black text-indigo-600">0{display.sep}{parts.tenths}</div></div>
-                                        <div className="text-4xl text-slate-200">=</div>
-                                        <div><p className="text-xs font-bold text-slate-400 mb-2">BRUCH</p>
+                                <div className="text-center py-20 space-y-16">
+                                    <div className="flex flex-col md:flex-row items-center justify-center gap-16">
+                                        <div className="bg-indigo-50 p-10 rounded-[3rem] w-80 border-2 border-indigo-100 shadow-xl">
+                                            <p className="text-xs font-black text-indigo-300 mb-6 tracking-[0.2em]">DEZIMAL</p>
+                                            <div className="text-6xl font-black text-indigo-600">{display.whole}{display.sep}{display.decimal}</div>
+                                        </div>
+                                        <div className="text-5xl font-bold text-slate-300">ist gleich</div>
+                                        <div className="bg-amber-50 p-10 rounded-[3rem] w-80 border-2 border-amber-100 shadow-xl">
+                                            <p className="text-xs font-black text-amber-300 mb-6 tracking-[0.2em]">BRUCH</p>
                                             <div className="flex flex-col items-center">
-                                                <div className="text-5xl font-black border-b-4 border-slate-800 px-4">{parts.tenths}</div>
-                                                <div className="text-5xl font-black">10</div>
+                                                <div className="text-5xl font-black border-b-8 border-slate-800 px-6 pb-2">{(value * 1000).toFixed(0)}</div>
+                                                <div className="text-5xl font-black pt-4">1000</div>
                                             </div>
                                         </div>
                                     </div>
+                                    <p className="text-slate-400 font-medium italic text-lg max-w-2xl mx-auto">
+                                        "Ein Zehntel ist einfach nur ein schmales Stück von einem großen Kuchen."
+                                    </p>
                                 </div>
                             )}
                         </main>
