@@ -27,13 +27,13 @@
 
         input[type=range]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            height: 44px; /* Larger touch target */
-            width: 44px;
+            height: 48px; 
+            width: 48px;
             border-radius: 50%;
             background: #4f46e5;
             cursor: pointer;
-            margin-top: -14px; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            margin-top: -16px; 
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
             border: 4px solid white;
         }
 
@@ -101,10 +101,19 @@
             100% { transform: scale(1); opacity: 1; }
         }
 
-        /* Prevent text selection while sliding */
         .no-select {
             user-select: none;
             -webkit-user-select: none;
+        }
+
+        /* Fading logic for trailing zeros */
+        .digit-ghost {
+            opacity: 0.15;
+            transition: opacity 0.2s ease;
+        }
+        .digit-active {
+            opacity: 1;
+            transition: opacity 0.2s ease;
         }
     </style>
 </head>
@@ -121,7 +130,7 @@
         const TabButton = ({ active, onClick, icon, label }) => (
             <button 
                 onClick={onClick}
-                className={`flex flex-1 items-center justify-center gap-2 px-3 py-3 rounded-xl font-bold transition-all text-sm ${active ? 'bg-indigo-600 text-white shadow-md' : 'bg-white text-slate-500 border border-slate-200'}`}
+                className={`flex flex-1 items-center justify-center gap-2 px-3 py-4 rounded-xl font-bold transition-all text-sm ${active ? 'bg-indigo-600 text-white shadow-md' : 'bg-white text-slate-500 border border-slate-200'}`}
             >
                 {icon}
                 <span className="hidden sm:inline">{label}</span>
@@ -153,7 +162,21 @@
                 if (region === 'CH') formattedWhole = whole.replace(/\B(?=(\d{3})+(?!\d))/g, "'");
                 else if (region === 'EU') formattedWhole = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
                 else formattedWhole = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-                return { whole: formattedWhole, sep: separator, decimal };
+                
+                // Determine if decimal digits should be "ghosted"
+                const t = parseInt(decimal[0]);
+                const h = parseInt(decimal[1]);
+                const th = parseInt(decimal[2]);
+
+                return { 
+                    whole: formattedWhole, 
+                    sep: separator, 
+                    digits: [
+                        { val: decimal[0], active: true }, // Zehntel always active if showing decimals
+                        { val: decimal[1], active: (h !== 0 || th !== 0) },
+                        { val: decimal[2], active: (th !== 0) }
+                    ]
+                };
             }, [value, region]);
 
             return (
@@ -161,10 +184,9 @@
                     <div className="max-w-4xl mx-auto">
                         <header className="text-center mb-6">
                             <h1 className="text-3xl font-extrabold text-indigo-600 mb-1 tracking-tight italic">Dezimal-Mathe</h1>
-                            <p className="text-sm text-slate-500">Für schlaue Köpfe am Tablet & Handy</p>
+                            <p className="text-sm text-slate-500">Nullen am Ende können fast unsichtbar sein!</p>
                         </header>
 
-                        {/* Region Selector - Compact for mobile */}
                         <div className="flex justify-center gap-2 mb-6">
                             {['CH', 'US', 'EU'].map(r => (
                                 <button key={r} onClick={() => setRegion(r)} className={`px-3 py-1.5 rounded-full text-[10px] font-bold transition-all ${region === r ? 'bg-indigo-600 text-white shadow-lg' : 'bg-white text-slate-500 border border-slate-200'}`}>
@@ -173,13 +195,18 @@
                             ))}
                         </div>
 
-                        {/* Main Number Display */}
                         <section className="bg-white rounded-2xl shadow-lg p-6 mb-6 border border-slate-200">
                             <div className="flex flex-col items-center gap-8">
                                 <div className="text-6xl sm:text-8xl font-black tracking-tighter tabular-nums flex items-baseline justify-center">
                                     <span>{display.whole}</span>
                                     <span className="text-indigo-500 mx-1">{display.sep}</span>
-                                    <span className="text-indigo-400">{display.decimal}</span>
+                                    <div className="flex text-indigo-400">
+                                        {display.digits.map((d, i) => (
+                                            <span key={i} className={d.active ? 'digit-active' : 'digit-ghost'}>
+                                                {d.val}
+                                            </span>
+                                        ))}
+                                    </div>
                                 </div>
                                 <div className="w-full px-2">
                                     <input 
@@ -198,7 +225,6 @@
                             </div>
                         </section>
 
-                        {/* Mobile Tabs - Full width row */}
                         <div className="flex gap-2 mb-6">
                             <TabButton active={activeTab === 'visualizer'} onClick={() => setActiveTab('visualizer')} icon={<Box />} label="Ansicht" />
                             <TabButton active={activeTab === 'placeValue'} onClick={() => setActiveTab('placeValue')} icon={<Grid3X3 />} label="Tabelle" />
@@ -249,10 +275,10 @@
                                         })}
                                     </div>
 
-                                    <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-xl">
-                                        <p className="text-blue-900 font-bold text-sm mb-1">💡 Mobile-Tipp:</p>
-                                        <p className="text-blue-800 text-xs leading-relaxed">
-                                            Schiebe den Regler oben auf <span className="font-bold underline">0,500</span>. Die blauen Balken füllen genau die Hälfte des Quadrats!
+                                    <div className="bg-indigo-50 border-l-4 border-indigo-400 p-4 rounded-xl">
+                                        <p className="text-indigo-900 font-bold text-sm mb-1">Geister-Nullen:</p>
+                                        <p className="text-indigo-800 text-xs leading-relaxed">
+                                            Oben siehst du, dass die Nullen am Ende blasser sind. Das zeigt dir: Sie verändern den Wert nicht, aber sie halten den Platz für noch kleinere Teile frei!
                                         </p>
                                     </div>
                                 </div>
@@ -267,8 +293,8 @@
                                         <div className="bg-white p-4 sm:p-8 text-3xl sm:text-6xl font-black">{parts.whole}</div>
                                         <div className="bg-indigo-50 p-4 sm:p-8 text-3xl sm:text-6xl font-black text-indigo-500">{display.sep}</div>
                                         <div className="bg-white p-4 sm:p-8 text-3xl sm:text-6xl font-black text-blue-500">{parts.tenths}</div>
-                                        <div className="bg-white p-4 sm:p-8 text-3xl sm:text-6xl font-black text-emerald-500">{parts.hundredths}</div>
-                                        <div className="bg-white p-4 sm:p-8 text-3xl sm:text-6xl font-black text-amber-500">{parts.thousandths}</div>
+                                        <div className={`bg-white p-4 sm:p-8 text-3xl sm:text-6xl font-black text-emerald-500 ${!display.digits[1].active ? 'opacity-10' : ''}`}>{parts.hundredths}</div>
+                                        <div className={`bg-white p-4 sm:p-8 text-3xl sm:text-6xl font-black text-amber-500 ${!display.digits[2].active ? 'opacity-10' : ''}`}>{parts.thousandths}</div>
                                     </div>
                                 </div>
                             )}
@@ -278,7 +304,12 @@
                                     <div className="flex flex-col items-center justify-center gap-8">
                                         <div className="bg-indigo-50 p-6 rounded-2xl w-full max-w-[200px] border border-indigo-100 shadow-sm">
                                             <p className="text-[10px] font-black text-indigo-300 mb-2 tracking-widest uppercase">Zahl</p>
-                                            <div className="text-4xl font-black text-indigo-600">{display.whole}{display.sep}{display.decimal}</div>
+                                            <div className="text-4xl font-black text-indigo-600">
+                                                {display.whole}{display.sep}
+                                                {display.digits.map((d, i) => (
+                                                    <span key={i} className={d.active ? 'opacity-100' : 'opacity-15'}>{d.val}</span>
+                                                ))}
+                                            </div>
                                         </div>
                                         <div className="text-xl font-bold text-slate-300 uppercase italic">ist das Gleiche wie...</div>
                                         <div className="bg-amber-50 p-6 rounded-2xl w-full max-w-[200px] border border-amber-100 shadow-sm">
